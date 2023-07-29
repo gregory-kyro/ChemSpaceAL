@@ -5,3 +5,11 @@
 /checkpoints/
 /wandb/
 .DS_Store
+/Archive/
+test*
+/1. Pretraining/
+/2. Generation/
+/3. Scoring/
+/4. DiffDock/
+/5. Scoring/
+/6. ActiveLearning/
