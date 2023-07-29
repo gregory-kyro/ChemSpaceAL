@@ -9,7 +9,7 @@
 test*
 /1. Pretraining/
 /2. Generation/
-/3. Scoring/
+/3. Sampling/
 /4. DiffDock/
-/5. Scoring/
-/6. ActiveLearning/
+# /5. Scoring/
+# /6. ActiveLearning/
