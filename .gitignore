@@ -13,3 +13,5 @@ test*
 /4. DiffDock/
 # /5. Scoring/
 # /6. ActiveLearning/
+/autoencoder/
+/pca_study/
