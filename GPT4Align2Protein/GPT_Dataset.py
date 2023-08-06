@@ -62,7 +62,7 @@ class SMILESDataset(Dataset):
         assert not self.desc_only, "Dataset is not initialized"
         smiles = self.data[idx].strip()
         # Define regular expression pattern used to identify characters in the SMILES strings
-        regex = re.compile(REGEX_PATTERN)
+        regex = re.compile(Config.REGEX_PATTERN)
         smiles_matches = regex.findall(smiles)
 
         if len(smiles_matches) > self.block_size + 1:
