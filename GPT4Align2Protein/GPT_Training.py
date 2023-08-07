@@ -109,13 +109,10 @@ class Trainer:
               
 
     @staticmethod
-    def train_GPT(train_dataset, valid_dataset=None, load_ckpt=False):
+    def train_GPT(train_dataset, config_dict, valid_dataset=None, load_ckpt=False):
         """
         Function to train GPT model
         """
-
-        config = Config(mode='PreTraining')
-        config_dict = config.get_config()
       
         mconf = GPTConfig(train_dataset.vocab_size, train_dataset.block_size,
                           warmup_tokens=0.1*train_dataset.len_data*train_dataset.block_size,
@@ -138,5 +135,5 @@ class Trainer:
 
 """
 # Example usage
-model = Trainer.train_GPT(train_dataset=train_dataset, valid_dataset=valid_dataset)
+model = Trainer.train_GPT(train_dataset=train_dataset, config_dict=config_dict, valid_dataset=valid_dataset)
 """
