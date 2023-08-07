@@ -3,7 +3,7 @@ from torch.utils.data.dataloader import DataLoader
 from torch.cuda.amp import GradScaler
 from tqdm import tqdm
 import wandb
-from .Configurations import *
+from Configurations import *
 
 
 class Trainer:
