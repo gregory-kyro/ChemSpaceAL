@@ -2,7 +2,7 @@
 import torch
 import torch.nn.functional as F
 from rdkit import Chem
-from .Configuration import *
+from Configuration import *
 
 @torch.no_grad()
 def sample(model, x, steps, temperature=1.0):
