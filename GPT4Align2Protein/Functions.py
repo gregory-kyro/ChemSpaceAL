@@ -2,6 +2,7 @@
 import torch
 import torch.nn.functional as F
 from rdkit import Chem
+import pandas as pd
 from Configuration import *
 
 @torch.no_grad()
