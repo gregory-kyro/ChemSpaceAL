@@ -39,3 +39,63 @@ def canonic_smiles(smiles_or_mol):
     if mol is None:
         return None
     return Chem.MolToSmiles(mol) # Convert to canonical SMILES
+
+
+
+
+def load_data(config_dict, mode='pretrain', forced_block_size=None):
+    """
+    Load data to be used for either pretraining or active learning
+    """
+
+    # Pretraining
+    if mode == 'pretrain':
+        # Get compression
+        if 'gz' in config_dict["train_path"]:
+            compression = 'gzip'
+        else:
+            compression = None
+
+        # Slice data if set in configuration dictionary
+        if (cut:=config_dict["slice_data"]):
+            train_data = pd.read_csv(config_dict["train_path"], compression=compression)[:cut]
+            val_data = pd.read_csv(config_dict["val_path"], compression=compression)[:cut]
+
+        else:
+            train_data = pd.read_csv(config_dict["train_path"], compression=compression)
+            val_data = pd.read_csv(config_dict["val_path"], compression=compression)
+        iterators = (train_data[config_dict['smiles_key']].values, val_data[config_dict['smiles_key']].values)
+        assert len(train_data) == len(train_data[config_dict['smiles_key']].values), "There's no reason why this shouldn't be true"
+    
+    elif mode == 'al':
+        print(f"Loading AL dataset from", '/'.join(config_dict["al_path"].split('/')[6:]))
+        al_data = pd.read_csv(config_dict["al_path"])
+        iterators = (al_data[config_dict['smiles_key']].values, )
+    else:
+        raise KeyError(f"Only pretraining and active learning are currently supported")
+
+    # compile pattern into a regular expression object that can be used for matching operations
+    regex = re.compile(REGEX_PATTERN)
+    char_set = {'<', '!', '~'}
+
+    max_len = 0
+    for iterator in iterators:
+        for i in iterator:
+            chars = regex.findall(i.strip())
+            max_len = max(max_len, len(chars))
+            for char in chars:
+                char_set.add(char)
+
+    chars = sorted(list(char_set))
+    max_len += 1    #accounting for the start token, which hasn't been added yet
+    if forced_block_size is not None:
+        assert mode == 'al', "Cannot force a block size in pretraining"
+        max_len = forced_block_size
+
+    datasets = []
+    for iterator in iterators:
+        padded = ['!' + i + '~' + '<'*(max_len - 1 - len(regex.findall(i.strip()))) for i in iterator]
+        dataset = SMILESDataset(data=padded, chars=chars, block_size=max_len, len_data=len(iterator))
+        datasets.append(dataset)
+    dataset.export_desc_attributes(config_dict["desc_path"])
+    return datasets
