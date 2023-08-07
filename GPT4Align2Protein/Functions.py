@@ -41,8 +41,6 @@ def canonic_smiles(smiles_or_mol):
     return Chem.MolToSmiles(mol) # Convert to canonical SMILES
 
 
-
-
 def load_data(config_dict, mode='Active Learning', forced_block_size=None):
     """
     Load data to be used for either pretraining or active learning
