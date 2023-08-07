@@ -75,7 +75,7 @@ def load_data(config_dict, mode='Active Learning', forced_block_size=None):
         raise KeyError(f"Only pretraining and active learning are currently supported")
 
     # Compile pattern into a regular expression object that can be used for matching operations
-    regex = re.compile(REGEX_PATTERN)
+    regex = re.compile(Config.REGEX_PATTERN)
     char_set = {'<', '!', '~'}
 
     max_len = 0
@@ -87,9 +87,9 @@ def load_data(config_dict, mode='Active Learning', forced_block_size=None):
                 char_set.add(char)
 
     chars = sorted(list(char_set))
-    max_len += 1    #accounting for the start token, which hasn't been added yet
+    max_len += 1    # Accounting for the start token, which hasn't been added yet
     if forced_block_size is not None:
-        assert mode == 'al', "Cannot force a block size in pretraining"
+        assert mode == 'Active Learning', "Cannot force a block size in pretraining"
         max_len = forced_block_size
 
     datasets = []
@@ -97,5 +97,7 @@ def load_data(config_dict, mode='Active Learning', forced_block_size=None):
         padded = ['!' + i + '~' + '<'*(max_len - 1 - len(regex.findall(i.strip()))) for i in iterator]
         dataset = SMILESDataset(data=padded, chars=chars, block_size=max_len, len_data=len(iterator))
         datasets.append(dataset)
+        
     dataset.export_desc_attributes(config_dict["desc_path"])
+    
     return datasets
