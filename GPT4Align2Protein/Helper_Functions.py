@@ -43,13 +43,13 @@ def canonic_smiles(smiles_or_mol):
 
 
 
-def load_data(config_dict, mode='pretrain', forced_block_size=None):
+def load_data(config_dict, mode='Active Learning', forced_block_size=None):
     """
     Load data to be used for either pretraining or active learning
     """
 
     # Pretraining
-    if mode == 'pretrain':
+    if mode == 'Pretraining':
         # Get compression
         if 'gz' in config_dict["train_path"]:
             compression = 'gzip'
@@ -67,14 +67,14 @@ def load_data(config_dict, mode='pretrain', forced_block_size=None):
         iterators = (train_data[config_dict['smiles_key']].values, val_data[config_dict['smiles_key']].values)
         assert len(train_data) == len(train_data[config_dict['smiles_key']].values), "There's no reason why this shouldn't be true"
     
-    elif mode == 'al':
-        print(f"Loading AL dataset from", '/'.join(config_dict["al_path"].split('/')[6:]))
+    elif mode == 'Active Learning':
+        print(f"Loading Active Learning dataset from", '/'.join(config_dict["al_path"].split('/')[6:]))
         al_data = pd.read_csv(config_dict["al_path"])
         iterators = (al_data[config_dict['smiles_key']].values, )
     else:
         raise KeyError(f"Only pretraining and active learning are currently supported")
 
-    # compile pattern into a regular expression object that can be used for matching operations
+    # Compile pattern into a regular expression object that can be used for matching operations
     regex = re.compile(REGEX_PATTERN)
     char_set = {'<', '!', '~'}
 
