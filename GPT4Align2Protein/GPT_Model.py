@@ -133,16 +133,16 @@ class Block(nn.Module):
 
 class GPT(nn.Module):
     
-  def __init__(self, config):
+    def __init__(self, config):
         super().__init__()
         self.config = config
         self.tok_emb = nn.Embedding(config.vocab_size, config.n_embed)
         self.type_emb = nn.Embedding(2, config.n_embed)
         self.pos_emb = nn.Parameter(torch.zeros(1, config.block_size, config.n_embed))
-
+    
         self.drop = nn.Dropout(config.gpt_drop_rate)
         self.blocks = nn.Sequential(*[Block(config) for _ in range(config.n_layer)])
-
+    
         # Final layer normalization
         self.ln_f = nn.LayerNorm(config.n_embed)
         # Output head to map to vocabulary size
@@ -153,7 +153,7 @@ class GPT(nn.Module):
       
     def get_block_size(self):
         return self.block_size
-
+    
     def _init_weights(self, module):
         # Weight initialization for linear and embedding layers
         if isinstance(module, (nn.Linear, nn.Embedding)):
