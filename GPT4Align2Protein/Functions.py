@@ -4,7 +4,9 @@ import torch.nn.functional as F
 from rdkit import Chem
 import pandas as pd
 import re
+
 from Configuration import *
+from GPT_Dataset import *
 
 @torch.no_grad()
 def sample(model, x, steps, temperature=1.0):
