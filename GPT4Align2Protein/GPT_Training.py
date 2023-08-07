@@ -7,7 +7,7 @@ from Configurations import *
 
 
 class Trainer:
-""" Class to train GPT model """
+    """ Class to train GPT model """
 
     def __init__(self, model, train_dataset, test_dataset=None):
         self.model = model
