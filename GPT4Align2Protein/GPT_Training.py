@@ -3,6 +3,7 @@ from torch.utils.data.dataloader import DataLoader
 from torch.cuda.amp import GradScaler
 from tqdm import tqdm
 import wandb
+from .Configurations import *
 
 
 class Trainer:
@@ -107,7 +108,7 @@ class Trainer:
               
 
     @staticmethod
-    def train_GPT(train_dataset, config_dict, valid_dataset=None, load_ckpt=False):
+    def train_GPT(train_dataset, config_dict = config.get_config(), valid_dataset=None, load_ckpt=False):
         """
         Function to train GPT model
         """
@@ -128,10 +129,10 @@ class Trainer:
         %env WANDB_EXECUTABLE=python3
         wandb.init(project=config_dict["wandb_project"], name=config_dict["wandb_runname"])
         trainer.train(wandb=wandb)
+        
         return model, trainer, wandb
-
 
 """
 # Example usage
-
+model = Trainer.train_GPT(train_dataset=train_dataset, config_dict=config.get_config(), valid_dataset=valid_dataset)
 """
