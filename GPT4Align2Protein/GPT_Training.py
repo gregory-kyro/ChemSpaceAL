@@ -4,6 +4,7 @@ from torch.cuda.amp import GradScaler
 from tqdm import tqdm
 import wandb
 from Configuration import *
+from GPT_Model import *
 
 
 class Trainer:
