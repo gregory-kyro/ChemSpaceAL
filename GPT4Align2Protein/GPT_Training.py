@@ -126,7 +126,7 @@ class Trainer:
         torch.compile(model)
         trainer = Trainer(model, train_dataset, valid_dataset)
 
-        %env WANDB_EXECUTABLE=python3
+        # %env WANDB_EXECUTABLE=python3
         wandb.init(project=config_dict["wandb_project"], name=config_dict["wandb_runname"])
         trainer.train(wandb=wandb)
         
