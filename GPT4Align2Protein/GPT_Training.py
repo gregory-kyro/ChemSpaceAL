@@ -77,7 +77,7 @@ class Trainer:
                     # Update the description of the progress bar with epoch, iteration, and training loss
                     pbar.set_description(f"epoch {epoch+1} iter {it}: train loss {loss.item():.5f}. lr {lr:e}")
             
-          return float(np.mean(losses))
+            return float(np.mean(losses))
 
         # Initialize best loss as infinity
         best_loss = float('inf')
