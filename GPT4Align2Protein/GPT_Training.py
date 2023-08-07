@@ -137,5 +137,5 @@ class Trainer:
 
 """
 # Example usage
-model = Trainer.train_GPT(train_dataset=train_dataset, config_dict=config.get_config(), valid_dataset=valid_dataset)
+model = Trainer.train_GPT(train_dataset=train_dataset, valid_dataset=valid_dataset)
 """
