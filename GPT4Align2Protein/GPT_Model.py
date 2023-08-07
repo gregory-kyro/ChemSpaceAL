@@ -150,10 +150,9 @@ class GPT(nn.Module):
         self.block_size = config.block_size  # Define the context size
         # Initialize weights
         self.apply(self._init_weights)
-
+      
     def get_block_size(self):
-        
-      return self.block_size
+        return self.block_size
 
     def _init_weights(self, module):
         # Weight initialization for linear and embedding layers
