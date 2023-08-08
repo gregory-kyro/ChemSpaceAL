@@ -94,7 +94,7 @@ class Config:
                 "learning_rate": 3e-4,
                 "save_ckpt_path": f"{self.pretraining_path}model_weights/{self.train_ckpt_name}.pt",
                 "desc_path": f"{self.pretraining_path}dataset_descriptors/{self.train_fname.split('.')[0][:-6]}.yaml",
-                "load_ckpt_path" = f"{self.pretraining_path}model_weights/{load_ckpt_name}"
+                "load_ckpt_path": f"{self.pretraining_path}model_weights/{load_ckpt_name}"
             })
         elif mode == 'Active Learning':
             dataset_desc_fname = "model1_softsub_al1_threshold11_softmax_sub"
@@ -105,7 +105,7 @@ class Config:
                 "learning_rate": 3e-5,
                 "save_ckpt_path": f"{self.al_path}model_weights/{self.train_ckpt_name}.pt",
                 "desc_path": f"{self.al_path}dataset_descriptors/{dataset_desc_fname}.yaml",
-                "load_ckpt_path" = f"{self.al_path}model_weights/{load_ckpt_name}"
+                "load_ckpt_path": f"{self.al_path}model_weights/{load_ckpt_name}"
 
             })
 
