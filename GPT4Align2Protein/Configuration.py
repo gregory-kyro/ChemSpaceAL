@@ -76,7 +76,7 @@ class Config:
             "diffdock_scored_path_list": [f"{self.BASE_PATH + '5. Scoring/'}scored_dataframes/{i}" for i in ["model1_baseline.csv", "model1_softdiv_al1.csv"]],
             "al_trainsets_path_list": [f"{self.BASE_PATH + '6. ActiveLearning/'}training_sets/{i}" for i in ["model1_baseline_threshold11_softmax_divf0.25.csv", 'model1_softdiv_al1_threshold11_softmax_divf0.25.csv']],
             "pca_fname": pca_fname,
-            "n_clusters": n_cluster,
+            "n_clusters": n_clusters,
             "samples_per_cluster": samples_per_cluster,
             "path_to_completions": self.BASE_PATH + '2. Generation/'+f"_temp{temperature}_completions.csv",
             "path_to_predicted": self.BASE_PATH + '2. Generation/'+f"_temp{temperature}_processed.csv",
