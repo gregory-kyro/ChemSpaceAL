@@ -225,7 +225,7 @@ def generate_SMILES(config_dict):
     assert (block_size == dataset.block_size), "Warning: model block size and dataset block size are different"
     molecules_list, molecules_set = [], set()
     completions = []
-    pbar = tqdm()
+    pbar = tqdm.tqdm()
     while True:
         pbar.update()
         pbar.set_description(f"generated {len(molecules_set)} unique molecules")
