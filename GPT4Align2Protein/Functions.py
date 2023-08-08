@@ -8,6 +8,7 @@ from openpyxl import load_workbook
 
 from Configuration import *
 from GPT_Dataset import *
+from GPT_Model import *
 
 @torch.no_grad()
 def sample(model, x, steps, temperature=1.0):
