@@ -7,7 +7,7 @@ import rdkit.Chem.Descriptors
 import pandas as pd
 import re
 from openpyxl import load_workbook
-import tqdm
+from tqdm import tqdm
 import pickle
 from sklearn.cluster import KMeans
 
@@ -504,3 +504,65 @@ def cluster_and_sample(mols, config_dict, ensure_correctness=False, load_kmeans=
     pd.DataFrame(keyToData).to_csv(config_dict["diffdock_save_path"])
 
     return cluster_to_samples
+
+
+def load_scored_mols(scored_path_list):
+    """Load previously scored molecules"""
+    scored_mols = {}
+    for scored_path in scored_path_list:
+        # Iterate through every row in the scored DataFrame
+        for i, row in pd.read_csv(scored_path).iterrows():
+            if row['smiles'] in scored_mols:
+                assert scored_mols[row['smiles']] == row['score'], f"{row['smiles']} scored {row['score']} but was already scored {scored_mols[row['smiles']]}"
+            scored_mols[row['smiles']] = row['score']
+    return scored_mols
+
+
+def count_new_samples(sampled_path, scored_set):
+    """Count how many molecules were already scored from the sampled set"""
+    sampled_mols = set(pd.read_csv(sampled_path)['smiles'])
+    repeated = len(sampled_mols & scored_set)
+    print(f"Scored directory contains {len(scored_set)} unique molecules")
+    print(f"{repeated} out of {len(sampled_mols)} sampled molecules were already scored")
+
+
+def get_top_poses(ligands_csv, protein_pdb_path, scored_set):
+    """Get top ligand poses for protein"""
+    data = pd.read_csv(ligands_csv)
+    ligand_files = []
+
+    os.environ['HOME'] = 'esm/model_weights'
+    os.environ['PYTHONPATH'] = f'{os.environ.get("PYTHONPATH", "")}:/content/DiffDock/esm'
+    pbar = tqdm(range(len(data)), total=len(data))
+    
+    for i in pbar:  # change 1 to len(data) for processing all ligands
+        smiles = data['smiles'][i]
+        
+        if smiles in scored_set: continue
+        rdkit_mol = Chem.MolFromSmiles(smiles)
+
+        if rdkit_mol is not None:
+            with open('/content/input_protein_ligand.csv', 'w') as out:
+                out.write('protein_path,ligand\n')
+                out.write(f'{protein_pdb_path},{smiles}\n')
+
+            # Clear out old results if running multiple times
+            shutil.rmtree('/content/DiffDock/results', ignore_errors=True)
+
+            # ESM Embedding Preparation
+            os.chdir('/content/DiffDock')
+            !python /content/DiffDock/datasets/esm_embedding_preparation.py --protein_ligand_csv /content/input_protein_ligand.csv --out_file /content/DiffDock/data/prepared_for_esm.fasta
+
+            # ESM Extraction
+            !python /content/DiffDock/esm/scripts/extract.py esm2_t33_650M_UR50D /content/DiffDock/data/prepared_for_esm.fasta /content/DiffDock/data/esm2_output --repr_layers 33 --include per_tok --truncation_seq_length 30000
+
+            # Inference
+            !python /content/DiffDock/inference.py --protein_ligand_csv /content/input_protein_ligand.csv --out_dir /content/DiffDock/results/user_predictions_small --inference_steps 20 --samples_per_complex 10 --batch_size 6
+
+            # Move results
+            for root, dirs, files in os.walk('/content/DiffDock/results/user_predictions_small'):
+                for file in files:
+                    if file.startswith('rank1_confidence'):
+                        shutil.move(os.path.join(root, file), os.path.join(DIFFDOCK_RESULTS_PATH, f'complex{i}.sdf'))
+                        ligand_files.append(f'{DIFFDOCK_RESULTS_PATH}complex{i}.sdf')
+    return ligand_files
