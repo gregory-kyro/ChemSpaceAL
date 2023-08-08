@@ -10,6 +10,7 @@ from openpyxl import load_workbook
 from tqdm import tqdm
 import pickle
 from sklearn.cluster import KMeans
+import shutil
 
 from Configuration import *
 from GPT_Dataset import *
@@ -229,7 +230,7 @@ def generate_SMILES(config_dict):
     assert (block_size == dataset.block_size), "Warning: model block size and dataset block size are different"
     molecules_list, molecules_set = [], set()
     completions = []
-    pbar = tqdm.tqdm()
+    pbar = tqdm()
     while True:
         pbar.update()
         pbar.set_description(f"generated {len(molecules_set)} unique molecules")
@@ -320,7 +321,7 @@ def descriptors_for_gpt_predictions(config_dict):
     keyToData = {}
 
     # Create a progress bar to monitor progress through the smiles_set
-    pbar = tqdm.tqdm(smiles_set, total=len(smiles_set))
+    pbar = tqdm(smiles_set, total=len(smiles_set))
 
     # Process each smile in the set
     for smile in pbar:
