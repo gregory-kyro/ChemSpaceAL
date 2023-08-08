@@ -1,6 +1,7 @@
 # Necessary import statements
 import torch
 import torch.nn.functional as F
+import rdkit
 from rdkit import Chem
 import rdkit.Chem.Descriptors
 import pandas as pd
@@ -420,3 +421,84 @@ def _cluster_mols_experimental(mols, n_clusters, save_path, n_iter=1, objective=
     # Save the kmeans object to a file
     pickle.dump(kmeans, open(save_path, 'wb'))
     return kmeans
+
+
+
+
+
+def cluster_and_sample(mols, config_dict, n_clusters, n_samples, ensure_correctness=False, path_to_pca=None, load_kmeans=False):
+    # Ensure that the requested number of clusters and samples doesn't exceed available molecules
+    assert n_clusters * n_samples <= len(mols), f"{n_clusters=} * {n_samples=} = {n_clusters*n_samples} requested but only {len(mols)} molecules provided"
+
+    # If correctness is to be ensured, path_to_pca must be provided
+    if ensure_correctness:
+        assert path_to_pca is not None, "path_to_pca must be provided to ensure correctness"
+        scaler, pca = pickle.load(open(path_to_pca, 'rb'))
+
+    # Load existing KMeans or create a new one
+    if load_kmeans:
+        kmeans = pickle.load(open(config_dict['kmeans_save_path'], 'rb'))
+    else:
+        kmeans = _cluster_mols_experimental(mols=mols, n_iter=100, n_clusters=n_clusters, save_path=config_dict["kmeans_save_path"], objective='mixed', mixed_objective_loss_quantile=0.05)
+
+    mols_smiles = pd.read_pickle(config["path_to_descriptors"])['smiles']
+    
+    assert len(kmeans.labels_) == len(mols_smiles), "Number of labels differs from number of molecules"
+    
+    scored_smiles = set()
+    for scored_file in config_dict['diffdock_scored_path_list']:
+        for smile in pd.read_csv(scored_file)['smiles'].values:
+            scored_smiles.add(smile)
+
+    # Group molecules by cluster labels
+    cluster_to_mols = {}
+    for mol, label, smile in zip(mols, kmeans.labels_, mols_smiles):
+        if smile in scored_smiles:
+            continue
+        cluster_to_mols.setdefault(label, []).append(smile)
+        
+        # Recalculate descriptors and ensure correctness
+        if ensure_correctness:
+            smile_features = pca.transform(scaler.transform(pd.DataFrame({k: [v] for k, v in rdkit.Chem.Descriptors.CalcMolDescriptors(rdkit.Chem.MolFromSmiles(smile)).items()})[scaler.get_feature_names_out()]))
+            assert np.allclose(smile_features[0], mol), "Features calculated from a smile string differ from features in the array"
+
+    # Sample from each cluster    
+    avg_len = np.mean([len(v) for v in cluster_to_mols.values()])
+    cluster_to_samples = {}
+    extra_mols = (100 - len(cluster_to_mols))*10
+    left_to_sample = n_clusters*n_samples
+    cluster_to_len = {cluster:len(mols) for cluster, mols in cluster_to_mols.items()}
+    for i, (cluster, _) in enumerate(sorted(cluster_to_len.items(), key=lambda x: x[1], reverse=False)):
+        smiles = cluster_to_mols[cluster]
+        if extra_mols > 0:
+            cur_extra = int(1+extra_mols/(len(cluster_to_mols) - i) * len(smiles)/avg_len)
+            cur_samples = n_samples + cur_extra
+            extra_mols -= cur_extra
+        else:
+            cur_samples = n_samples
+        if cur_samples > left_to_sample:
+            cur_samples = left_to_sample
+        if len(smiles) > cur_samples:
+            cluster_to_samples[cluster] = np.random.choice(smiles, cur_samples, replace=False)
+            left_to_sample -= cur_samples
+        else:
+            cluster_to_samples[cluster] = smiles
+            left_to_sample -= len(smiles)
+            extra_mols += cur_samples - len(smiles)
+    
+    # Ensure the correct number of samples
+    assert (n_sampled := sum(len(vals) for vals in cluster_to_samples.values())) == n_clusters * n_samples, f"Sampled {n_sampled} but were requested {n_clusters*n_samples}"
+
+    # Save clusters and samples
+    pickle.dump(cluster_to_mols, open(config_dict["clusters_save_path"], 'wb'))
+    pickle.dump(cluster_to_samples, open(config_dict["samples_save_path"], 'wb'))
+
+    # Create and save the final DataFrame
+    keyToData = {}
+    for cluster, mols in cluster_to_samples.items():
+        for mol in mols:
+            keyToData.setdefault('smiles', []).append(mol)
+            keyToData.setdefault('cluster_id', []).append(cluster)
+    pd.DataFrame(keyToData).to_csv(config["diffdock_save_path"])
+
+    return cluster_to_samples
