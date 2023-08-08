@@ -1,0 +1,11 @@
+Number of molecules in ChemBL: 2372527
+Number of molecules in GuacaMol: 1591378
+Number of molecules in all datasets: 5622772
+Number of molecules in bindingDB: 1181482
+Number of molecules in both ChemBL and GuacaMol: 1092369
+Number of molecules in both bindingDB and ChemBL: 107534
+Number of molecules in both bindingDB and GuacaMol: 62895
+Number of molecules in both moses and ChemBL: 78050
+Number of molecules in both moses and GuacaMol: 64257
+Number of molecules in both moses and bindingDB: 2305
+Number of molecules in moses: 1760737
