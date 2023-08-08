@@ -25,7 +25,7 @@ class Config:
                  train_ckpt_name='model1_softdiv_al2',
                  current_cycle_prefix="model1_softdiv_al2", context='!', temperature=1.0,
                  gen_batch_size=8, load_ckpt_name='model1_softdiv_al2.pt',
-                 gen_val_fname="moses_and_binding_no_rare_tokens_test.csv.gz")::
+                 gen_val_fname="moses_and_binding_no_rare_tokens_test.csv.gz"):
 
         DEVICE = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
         
