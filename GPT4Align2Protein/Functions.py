@@ -320,7 +320,7 @@ def descriptors_for_gpt_predictions(config_dict):
     keyToData = {}
 
     # Create a progress bar to monitor progress through the smiles_set
-    pbar = tqdm(smiles_set, total=len(smiles_set))
+    pbar = tqdm.tqdm(smiles_set, total=len(smiles_set))
 
     # Process each smile in the set
     for smile in pbar:
