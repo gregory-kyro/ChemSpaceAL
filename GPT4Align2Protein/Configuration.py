@@ -64,14 +64,14 @@ class Config:
             "diffdock_path": self.BASE_PATH + '4. DiffDock/',
             "scoring_path": self.BASE_PATH + '5. Scoring/',
             "al_path": self.BASE_PATH + '6. ActiveLearning/',
-            "protein_path": self.diffdock_path + 'proteins/' + self.protein_name,
+            "protein_path": self.BASE_PATH + '4. DiffDock/' + 'proteins/' + protein_name,
             "generation_context": context,
             "gen_size": 100_000,
             "inference_temp": temperature,
             "gen_batch_size": gen_batch_size,
             "gen_val_fname": gen_val_fname,
-            "diffdock_scored_path_list": [f"{self.scoring_path}scored_dataframes/{i}" for i in ["model1_baseline.csv", "model1_softdiv_al1.csv"]],
-            "al_trainsets_path_list": [f"{self.al_path}training_sets/{i}" for i in ["model1_baseline_threshold11_softmax_divf0.25.csv", 'model1_softdiv_al1_threshold11_softmax_divf0.25.csv']]
+            "diffdock_scored_path_list": [f"{self.BASE_PATH + '5. Scoring/'}scored_dataframes/{i}" for i in ["model1_baseline.csv", "model1_softdiv_al1.csv"]],
+            "al_trainsets_path_list": [f"{self.BASE_PATH + '6. ActiveLearning/'}training_sets/{i}" for i in ["model1_baseline_threshold11_softmax_divf0.25.csv", 'model1_softdiv_al1_threshold11_softmax_divf0.25.csv']]
                      }
 
         set_mode(mode)
