@@ -23,7 +23,9 @@ class Config:
                  train_fname="moses_and_binding_no_rare_tokens_train.csv.gz",
                  val_fname="moses_and_binding_no_rare_tokens_test.csv.gz",
                  train_ckpt_name='model1_softdiv_al2',
-                 current_cycle_prefix="model1_softdiv_al2"):
+                 current_cycle_prefix="model1_softdiv_al2", context='!', temperature=1.0,
+                 gen_batch_size=8, load_ckpt_name='model1_softdiv_al2.pt',
+                 gen_val_fname="moses_and_binding_no_rare_tokens_test.csv.gz")::
 
         DEVICE = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
         
@@ -48,28 +50,31 @@ class Config:
             "betas": betas,
             "rho": rho,
             "weight_decay": weight_decay,
-            "num_workers": num_workers
-        }
+            "num_workers": num_workers,
+            "protein_name": protein_name,
+            "random_seed": random_seed,
+            "mode": mode,
+            "train_fname": train_fname,
+            "val_fname": val_fname,
+            "train_ckpt_name": train_ckpt_name,
+            "current_cycle_prefix": current_cycle_prefix,
+            "pretraining_path": self.BASE_PATH + '1. Pretraining/',
+            "generation_path": self.BASE_PATH + '2. Generation/',
+            "sampling_path": self.BASE_PATH + '3. Sampling/',
+            "diffdock_path": self.BASE_PATH + '4. DiffDock/',
+            "scoring_path": self.BASE_PATH + '5. Scoring/',
+            "al_path": self.BASE_PATH + '6. ActiveLearning/',
+            "protein_path": self.diffdock_path + 'proteins/' + self.protein_name,
+            "generation_context": context,
+            "gen_size": 100_000,
+            "inference_temp": temperature,
+            "gen_batch_size": gen_batch_size,
+            "gen_val_fname": gen_val_fname,
+            "diffdock_scored_path_list": [f"{self.scoring_path}scored_dataframes/{i}" for i in ["model1_baseline.csv", "model1_softdiv_al1.csv"],
+            "al_trainsets_path_list": [f"{self.al_path}training_sets/{i}" for i in ["model1_baseline_threshold11_softmax_divf0.25.csv", 'model1_softdiv_al1_threshold11_softmax_divf0.25.csv']
+                     }
 
-        # Paths and additional settings
-        self.protein_name = protein_name
-        self.random_seed = random_seed
-        self.mode = mode
-        self.train_fname = train_fname
-        self.val_fname = val_fname
-        self.train_ckpt_name = train_ckpt_name
-        self.current_cycle_prefix = current_cycle_prefix
-
-        self.pretraining_path = self.BASE_PATH + '1. Pretraining/'
-        self.generation_path = self.BASE_PATH + '2. Generation/'
-        self.sampling_path = self.BASE_PATH + '3. Sampling/'
-        self.diffdock_path = self.BASE_PATH + '4. DiffDock/'
-        self.scoring_path = self.BASE_PATH + '5. Scoring/'
-        self.al_path = self.BASE_PATH + '6. ActiveLearning/'
-
-        self.protein_path = self.diffdock_path + 'proteins/' + self.protein_name
-
-        self.set_mode(mode)
+        set_mode(mode)
 
     def set_mode(self, mode):
         """
@@ -89,6 +94,7 @@ class Config:
                 "learning_rate": 3e-4,
                 "save_ckpt_path": f"{self.pretraining_path}model_weights/{self.train_ckpt_name}.pt",
                 "desc_path": f"{self.pretraining_path}dataset_descriptors/{self.train_fname.split('.')[0][:-6]}.yaml",
+                "load_ckpt_path = f"{self.BASE_PATH + '1. Pretraining/'}model_weights/{load_ckpt_name}"
             })
         elif mode == 'Active Learning':
             dataset_desc_fname = "model1_softsub_al1_threshold11_softmax_sub"
@@ -98,7 +104,9 @@ class Config:
                 "epochs": 10,
                 "learning_rate": 3e-5,
                 "save_ckpt_path": f"{self.al_path}model_weights/{self.train_ckpt_name}.pt",
-                "desc_path": f"{self.al_path}dataset_descriptors/{dataset_desc_fname}.yaml"
+                "desc_path": f"{self.al_path}dataset_descriptors/{dataset_desc_fname}.yaml",
+                "load_ckpt_path = f"{self.BASE_PATH + '1. ActiveLearning/'}model_weights/{load_ckpt_name}"
+
             })
 
         self.config_dict.update(job_config)
