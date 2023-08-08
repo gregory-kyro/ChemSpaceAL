@@ -80,7 +80,7 @@ class Config:
             "samples_per_cluster": samples_per_cluster,
             "path_to_completions": self.BASE_PATH + '2. Generation/'+f"_temp{temperature}_completions.csv",
             "path_to_predicted": self.BASE_PATH + '2. Generation/'+f"_temp{temperature}_processed.csv",
-            "path_to_descriptors": self.BASE_PATH + '3. Sampling/' + "descriptors/" + self.BASE_PATH + '2. Generation/'.split('/')[-1] +f"_temp{CONFIG_DICT['inference_temp']}.pkl",
+            "path_to_descriptors": self.BASE_PATH + '3. Sampling/' + "descriptors/" + self.BASE_PATH + '2. Generation/'.split('/')[-1] +f"_temp{temperature}.pkl",
             "path_to_pca": f"{self.BASE_PATH + '3. Sampling/'}pca_weights/{pca_fname}",
             "kmeans_save_path": f"{self.BASE_PATH + '3. Sampling/'}kmeans_objects/{current_cycle_prefix}_k{n_clusters}means.pkl",
             "clusters_save_path": f"{self.BASE_PATH + '3. Sampling/'}clusterings/{current_cycle_prefix}_cluster_to_mols.pkl",
