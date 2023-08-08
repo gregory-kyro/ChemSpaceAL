@@ -81,9 +81,9 @@ class Config:
         Sets the mode and adjusts the configuration settings accordingly
         """
         job_config = {
-            "train_path": f"{self.pretraining_path}datasets/{self.train_fname}",
-            "val_path": f"{self.pretraining_path}datasets/{self.val_fname}",
-            "wandb_runname": self.train_ckpt_name,
+            "train_path": f"{self.BASE_PATH + '1. Pretraining/'}datasets/{train_fname}",
+            "val_path": f"{self.BASE_PATH + '1. Pretraining/'}datasets/{val_fname}",
+            "wandb_runname": train_ckpt_name,
         }
 
         if mode == 'Pretraining':
@@ -92,9 +92,9 @@ class Config:
                 "lr_decay": True,
                 "epochs": 30,
                 "learning_rate": 3e-4,
-                "save_ckpt_path": f"{self.pretraining_path}model_weights/{self.train_ckpt_name}.pt",
-                "desc_path": f"{self.pretraining_path}dataset_descriptors/{self.train_fname.split('.')[0][:-6]}.yaml",
-                "load_ckpt_path": f"{self.pretraining_path}model_weights/{load_ckpt_name}"
+                "save_ckpt_path": f"{self.BASE_PATH + '1. Pretraining/'}model_weights/{train_ckpt_name}.pt",
+                "desc_path": f"{self.BASE_PATH + '1. Pretraining/'}dataset_descriptors/{train_fname.split('.')[0][:-6]}.yaml",
+                "load_ckpt_path": f"{self.BASE_PATH + '1. Pretraining/'}model_weights/{load_ckpt_name}"
             })
         elif mode == 'Active Learning':
             dataset_desc_fname = "model1_softsub_al1_threshold11_softmax_sub"
@@ -103,9 +103,9 @@ class Config:
                 "lr_decay": True,
                 "epochs": 10,
                 "learning_rate": 3e-5,
-                "save_ckpt_path": f"{self.al_path}model_weights/{self.train_ckpt_name}.pt",
-                "desc_path": f"{self.al_path}dataset_descriptors/{dataset_desc_fname}.yaml",
-                "load_ckpt_path": f"{self.al_path}model_weights/{load_ckpt_name}"
+                "save_ckpt_path": f"{self.BASE_PATH + '6. ActiveLearning/'}model_weights/{train_ckpt_name}.pt",
+                "desc_path": f"{self.BASE_PATH + '6. ActiveLearning/'}dataset_descriptors/{dataset_desc_fname}.yaml",
+                "load_ckpt_path": f"{self.BASE_PATH + '6. ActiveLearning/'}model_weights/{load_ckpt_name}"
 
             })
 
