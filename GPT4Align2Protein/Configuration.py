@@ -25,7 +25,9 @@ class Config:
                  train_ckpt_name='model1_softdiv_al2',
                  current_cycle_prefix="model1_softdiv_al2", context='!', temperature=1.0,
                  gen_batch_size=8, load_ckpt_name='model1_softdiv_al2.pt',
-                 gen_val_fname="moses_and_binding_no_rare_tokens_test.csv.gz"):
+                 gen_val_fname="moses_and_binding_no_rare_tokens_test.csv.gz",
+                 pca_fname='scaler_pca_moses+bindingdb.pkl', n_clusters=100, 
+                 samples_per_cluster=10):
 
         DEVICE = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
         
@@ -72,7 +74,19 @@ class Config:
             "load_ckpt_name": load_ckpt_name,
             "gen_val_fname": gen_val_fname,
             "diffdock_scored_path_list": [f"{self.BASE_PATH + '5. Scoring/'}scored_dataframes/{i}" for i in ["model1_baseline.csv", "model1_softdiv_al1.csv"]],
-            "al_trainsets_path_list": [f"{self.BASE_PATH + '6. ActiveLearning/'}training_sets/{i}" for i in ["model1_baseline_threshold11_softmax_divf0.25.csv", 'model1_softdiv_al1_threshold11_softmax_divf0.25.csv']]
+            "al_trainsets_path_list": [f"{self.BASE_PATH + '6. ActiveLearning/'}training_sets/{i}" for i in ["model1_baseline_threshold11_softmax_divf0.25.csv", 'model1_softdiv_al1_threshold11_softmax_divf0.25.csv']],
+            "pca_fname": pca_fname,
+            "n_clusters": n_cluster,
+            "samples_per_cluster": samples_per_cluster,
+            "path_to_completions": self.BASE_PATH + '2. Generation/'+f"_temp{temperature}_completions.csv",
+            "path_to_predicted": self.BASE_PATH + '2. Generation/'+f"_temp{temperature}_processed.csv",
+            "path_to_descriptors": self.BASE_PATH + '3. Sampling/' + "descriptors/" + self.BASE_PATH + '2. Generation/'.split('/')[-1] +f"_temp{CONFIG_DICT['inference_temp']}.pkl",
+            "path_to_pca": f"{self.BASE_PATH + '3. Sampling/'}pca_weights/{pca_fname}",
+            "kmeans_save_path": f"{self.BASE_PATH + '3. Sampling/'}kmeans_objects/{current_cycle_prefix}_k{n_clusters}means.pkl",
+            "clusters_save_path": f"{self.BASE_PATH + '3. Sampling/'}clusterings/{current_cycle_prefix}_cluster_to_mols.pkl",
+            "samples_save_path": f"{self.BASE_PATH + '3. Sampling/'}clusterings/{current_cycle_prefix}_cluster_to_samples.pkl",
+            "diffdock_save_path": f"{self.BASE_PATH + '4. DiffDock/'}sampled_mols/{current_cycle_prefix}_samples.csv",
+            "diffdock_scored_path_list": [f"{self.BASE_PATH + '5. Scoring/'}scored_dataframes/{i}" for i in ["model1_baseline.csv", "model1_softdiv_al1.csv"]]
                      }
 
         self.set_mode(mode)
