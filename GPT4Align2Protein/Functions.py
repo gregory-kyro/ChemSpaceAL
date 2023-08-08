@@ -25,16 +25,28 @@ def sample(model, x, steps, temperature=1.0):
         x = torch.cat((x, ix), dim=1) # Concatenate token with sequence
     return x
 
-def check_novelty(gen_smiles, train_smiles):
-    """
-    Check the novelty of generated SMILES by comparing with training set
-    """
-    if len(gen_smiles) == 0:
-        novel_ratio = 0
+
+# Function to check the novelty of generated molecules relative to a training list
+def check_novelty(generated, train_list, sig_digs=3, multiplier=100, denominator=None, subtracted=True, show_work=False):
+    total_train = set()
+    for train in train_list:
+        total_train = total_train | train
+    repeated = generated & total_train
+    if denominator is None:
+        denominator = len(generated)
+    if subtracted:
+        if show_work:
+            out = np.round(multiplier*(1-len(repeated)/denominator), sig_digs)
+            return f"{multiplier}*(1-{len(repeated)}/{denominator}) = {out}"
+        else:
+            return np.round(multiplier*(1-len(repeated)/denominator), sig_digs)
     else:
-        duplicates = [1 for mol in gen_smiles if mol in train_smiles] # Find duplicates
-        novel_ratio = (len(gen_smiles) - sum(duplicates)) * 100 / len(gen_smiles) # Compute novelty ratio
-    return novel_ratio
+        if show_work:
+            out = np.round(multiplier*len(repeated)/denominator, sig_digs)
+            return f"{multiplier} * {len(repeated)}/{denominator} = {out}"
+        else:
+            return np.round(multiplier*len(repeated)/denominator, sig_digs)
+
 
 def canonic_smiles(smiles_or_mol):
     """
@@ -170,7 +182,7 @@ def export_metrics_to_workbook(metrics, fname):
                     value = value.split(' = ')[1]
             ws[f'{metric_to_col[metric]}{row}'] = value
     # Save the updated workbook
-    wb.save(filename=f"{BASE_PATH}Generative_ML Logbook.xlsx")
+    wb.save(filename=f"{Config.BASE_PATH}Generative_ML Logbook.xlsx")
 
 
 # Function to convert a SMILES string into an RDKit Mol object
@@ -185,28 +197,6 @@ def get_mol(smile_string):
     return mol
 
 
-# Function to check the novelty of generated molecules relative to a training list
-def check_novelty(generated, train_list, sig_digs=3, multiplier=100, denominator=None, subtracted=True, show_work=False):
-    total_train = set()
-    for train in train_list:
-        total_train = total_train | train
-    repeated = generated & total_train
-    if denominator is None:
-        denominator = len(generated)
-    if subtracted:
-        if show_work:
-            out = np.round(multiplier*(1-len(repeated)/denominator), sig_digs)
-            return f"{multiplier}*(1-{len(repeated)}/{denominator}) = {out}"
-        else:
-            return np.round(multiplier*(1-len(repeated)/denominator), sig_digs)
-    else:
-        if show_work:
-            out = np.round(multiplier*len(repeated)/denominator, sig_digs)
-            return f"{multiplier} * {len(repeated)}/{denominator} = {out}"
-        else:
-            return np.round(multiplier*len(repeated)/denominator, sig_digs)
-
-
 # Function to write a dictionary to a text file
 def dump_dic_to_text(dic, path, header=None):
     with open(path, 'w') as f:
@@ -217,14 +207,14 @@ def dump_dic_to_text(dic, path, header=None):
 
 
 # Function to generate SMILES strings for molecules using a given model and parameters
-def generate_SMILES(config_dict, inference_parameters):
-    regex = re.compile(REGEX_PATTERN)
+def generate_SMILES(config_dict):
+    regex = re.compile(Config.REGEX_PATTERN)
     dataset = SMILESDataset()
     dataset.load_desc_attributes(config_dict["desc_path"])
 
     mconf = GPTConfig(dataset.vocab_size, dataset.block_size, **config_dict)
     model = GPT(mconf).to(config_dict["device"])
-    model.load_state_dict(torch.load(inference_parameters["load_ckpt_path"], map_location=torch.device(config_dict["device"])))
+    model.load_state_dict(torch.load(config_dict["load_ckpt_path"], map_location=torch.device(config_dict["device"])))
     model.to(config_dict["device"])
     torch.compile(model)
 
@@ -238,8 +228,8 @@ def generate_SMILES(config_dict, inference_parameters):
         pbar.update()
         pbar.set_description(f"generated {len(molecules_set)} unique molecules")
         # create an input tensor by converting 'context' to a tensor of token indices, repeat this batch times along the batch dimension
-        x = (torch.tensor([dataset.stoi[s] for s in regex.findall(inference_parameters["generation_context"])], dtype=torch.long,)[None, ...]
-            .repeat(inference_parameters["batch_size"], 1).to(config_dict["device"]))
+        x = (torch.tensor([dataset.stoi[s] for s in regex.findall(config_dict["generation_context"])], dtype=torch.long,)[None, ...]
+            .repeat(config_dict["gen_batch_size"], 1).to(config_dict["device"]))
         y = sample(model, x, block_size, temperature=config_dict["inference_temp"])
         for gen_mol in y:
             completion = "".join([dataset.itos[int(i)] for i in gen_mol])  # convert generated molecule from list of integers to list of strings and concatenate to one string
@@ -252,7 +242,7 @@ def generate_SMILES(config_dict, inference_parameters):
             if mol is not None:
                 molecules_list.append(Chem.MolToSmiles(mol))
                 molecules_set.add(Chem.MolToSmiles(mol))
-        if len(molecules_set) >= inference_parameters["gen_size"]:
+        if len(molecules_set) >= config_dict["gen_size"]:
             break
     pbar.close()
 
