@@ -423,10 +423,12 @@ def _cluster_mols_experimental(mols, n_clusters, save_path, n_iter=1, objective=
     return kmeans
 
 
-
-
-
-def cluster_and_sample(mols, config_dict, n_clusters, n_samples, ensure_correctness=False, path_to_pca=None, load_kmeans=False):
+def cluster_and_sample(mols, config_dict, ensure_correctness=False, load_kmeans=False):
+    
+    n_clusters = config_dict['n_clusters']
+    n_samples = config_dict['samples_per_cluster']
+    path_to_pca = config_dict['path_to_pca']
+    
     # Ensure that the requested number of clusters and samples doesn't exceed available molecules
     assert n_clusters * n_samples <= len(mols), f"{n_clusters=} * {n_samples=} = {n_clusters*n_samples} requested but only {len(mols)} molecules provided"
 
