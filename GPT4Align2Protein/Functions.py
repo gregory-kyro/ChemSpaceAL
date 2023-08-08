@@ -2,10 +2,13 @@
 import torch
 import torch.nn.functional as F
 from rdkit import Chem
+import rdkit.Chem.Descriptors
 import pandas as pd
 import re
 from openpyxl import load_workbook
 import tqdm
+import pickle
+from sklearn.cluster import KMeans
 
 from Configuration import *
 from GPT_Dataset import *
@@ -294,7 +297,126 @@ def characterize_generated_molecules(config_dict, molecules_list=None):
         metrics[f"% fraction of AL{al_round} training set in generated"] = check_novelty(molecules_set, (al_set,), subtracted=False, multiplier=multiplier, denominator=len(al_set), show_work=True)
     for score_round, score_set in scored_sets.items():
         metrics[f"% fraction of scored from round {score_round} in generated"] = check_novelty(molecules_set, (score_set,), subtracted=False, multiplier=multiplier, denominator=len(score_set), show_work=True)
-    
+
     # Dump the metrics to a text file and export them to a workbook
     dump_dic_to_text(metrics, config_dict["generation_path"]+ f"_temp{config_dict['inference_temp']}_metrics.txt")
     export_metrics_to_workbook(metrics, config_dict["generation_path"].split('/')[-1])
+
+
+def descriptors_for_gpt_predictions(config_dict):
+    # Read the SMILES data from the CSV file specified in the config
+    gpt_mols = pd.read_csv(config_dict['path_to_predicted'])
+    smiles_set = set(gpt_mols['smiles'].to_list())
+
+    # Iterate through each file path in the scored path list
+    for scored_file in config_dict['diffdock_scored_path_list']:
+        for smile in pd.read_csv(scored_file)['smiles'].values:
+            # Ensure that each smile is a string
+            assert isinstance(smile, str), f"{smile} is not a string"
+            smiles_set.add(smile)
+
+    keySet = None
+    keyToData = {}
+
+    # Create a progress bar to monitor progress through the smiles_set
+    pbar = tqdm(smiles_set, total=len(smiles_set))
+
+    # Process each smile in the set
+    for smile in pbar:
+        mol = rdkit.Chem.MolFromSmiles(smile)
+        if not mol:
+            continue
+
+        # Calculate the molecular descriptors using RDKit
+        mol_data = rdkit.Chem.Descriptors.CalcMolDescriptors(mol)
+
+        # If keySet is None, initialize it with the keys from mol_data
+        if keySet is None:
+            keySet = set(mol_data.keys())
+
+        # Add the calculated descriptors to keyToData
+        for key in keySet:
+            keyToData.setdefault(key, []).append(mol_data[key])
+
+        # Add the original smile to keyToData
+        keyToData.setdefault('smiles', []).append(smile)
+
+    # Convert the collected data to a DataFrame
+    gpt_df = pd.DataFrame(keyToData)
+
+    # Save the DataFrame to a pickle file for later use
+    gpt_df.to_pickle(config_dict['path_to_descriptors'])
+
+    return gpt_df
+    
+
+def project_into_pca_space(config):
+    # Load the scaler and PCA objects from the specified file
+    scaler, pca = pickle.load(open(config["path_to_pca"], 'rb'))
+
+    # Read the descriptors from the pickled DataFrame file
+    gptMols = pd.read_pickle(config["path_to_descriptors"])
+
+    # First, apply the scaler to standardize the descriptors
+    scaled_data = scaler.transform(gptMols[scaler.get_feature_names_out()])
+
+    # Next, apply the PCA transformation to project the scaled data into PCA space
+    pca_data = pca.transform(scaled_data)
+
+    return pca_data
+
+
+def _cluster_mols_experimental_loss(mols, n_clusters, n_iter):
+    # Iterate to find the KMeans clustering with the minimum inertia (loss)
+    min_loss, best_kmeans = float('inf'), None
+    for _ in range(n_iter):
+        kmeans = KMeans(n_clusters=n_clusters, n_init='auto', init='k-means++').fit(mols)
+        if kmeans.inertia_ < min_loss:
+            min_loss = kmeans.inertia_
+            best_kmeans = kmeans
+    return best_kmeans
+
+
+def _cluster_mols_experimental_variance(mols, n_clusters, n_iter):
+    # Iterate to find the KMeans clustering with the maximum variance
+    max_variance, best_kmeans = float('-inf'), None
+    for _ in range(n_iter):
+        kmeans = KMeans(n_clusters=n_clusters, n_init='auto', init='k-means++').fit(mols)
+        counts = np.unique(kmeans.labels_, return_counts=True)[1]
+        if (variance:=np.var(counts)) > max_variance:
+            max_variance = variance
+            best_kmeans = kmeans
+    return best_kmeans
+
+
+def _cluster_mols_experimental_mixed(mols, n_clusters, n_iter, mixed_objective_loss_quantile):
+    # Mixed approach, combining inertia and variance objectives
+    inertias, variances, km_objs = [], [], []
+    for _ in range(n_iter):
+        kmeans = KMeans(n_clusters=n_clusters, n_init='auto', init='k-means++').fit(mols)
+        inertias.append(kmeans.inertia_)
+        counts = np.unique(kmeans.labels_, return_counts=True)[1]
+        variances.append(np.var(counts))
+        km_objs.append(kmeans)
+    loss_var_kmeans_triples = sorted(zip(inertias, variances, km_objs), key=lambda x: x[0])
+    lowest_n = loss_var_kmeans_triples[:int(len(loss_var_kmeans_triples) * mixed_objective_loss_quantile)]
+    sorted_by_variance = sorted(lowest_n, key=lambda x: x[1])
+    return sorted_by_variance[0][2]
+
+
+def _cluster_mols_experimental(mols, n_clusters, save_path, n_iter=1, objective='loss', mixed_objective_loss_quantile=0.1):
+    # Main clustering function with support for various objectives
+    if n_iter == 1:
+        kmeans = KMeans(n_clusters=n_clusters, n_init='auto', init='k-means++').fit(mols)
+    elif objective == 'loss':
+        kmeans = _cluster_mols_experimental_loss(mols, n_clusters, n_iter)
+    elif objective == 'variance':
+        kmeans = _cluster_mols_experimental_variance(mols, n_clusters, n_iter)
+    elif objective == 'mixed':
+        kmeans = _cluster_mols_experimental_mixed(mols, n_clusters, n_iter, mixed_objective_loss_quantile)
+    else:
+        raise ValueError(f'Unknown objective {objective}')
+
+    # Save the kmeans object to a file
+    pickle.dump(kmeans, open(save_path, 'wb'))
+    return kmeans
