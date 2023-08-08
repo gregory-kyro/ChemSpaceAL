@@ -5,6 +5,7 @@ from rdkit import Chem
 import pandas as pd
 import re
 from openpyxl import load_workbook
+import tqdm
 
 from Configuration import *
 from GPT_Dataset import *
