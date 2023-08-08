@@ -69,6 +69,7 @@ class Config:
             "gen_size": 100_000,
             "inference_temp": temperature,
             "gen_batch_size": gen_batch_size,
+            "load_ckpt_name": load_ckpt_name,
             "gen_val_fname": gen_val_fname,
             "diffdock_scored_path_list": [f"{self.BASE_PATH + '5. Scoring/'}scored_dataframes/{i}" for i in ["model1_baseline.csv", "model1_softdiv_al1.csv"]],
             "al_trainsets_path_list": [f"{self.BASE_PATH + '6. ActiveLearning/'}training_sets/{i}" for i in ["model1_baseline_threshold11_softmax_divf0.25.csv", 'model1_softdiv_al1_threshold11_softmax_divf0.25.csv']]
