@@ -86,7 +86,7 @@ class Config:
             "clusters_save_path": f"{self.BASE_PATH + '3. Sampling/'}clusterings/{current_cycle_prefix}_cluster_to_mols.pkl",
             "samples_save_path": f"{self.BASE_PATH + '3. Sampling/'}clusterings/{current_cycle_prefix}_cluster_to_samples.pkl",
             "diffdock_save_path": f"{self.BASE_PATH + '4. DiffDock/'}sampled_mols/{current_cycle_prefix}_samples.csv",
-            "diffdock_results_path = f"{self.BASE_PATH + '4. DiffDock/'}poses/{current_cycle_prefix}_T4/"
+            "diffdock_results_path": f"{self.BASE_PATH + '4. DiffDock/'}poses/{current_cycle_prefix}_T4/"
                      }
 
         self.set_mode(mode)
