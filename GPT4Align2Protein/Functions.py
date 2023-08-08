@@ -443,7 +443,7 @@ def cluster_and_sample(mols, config_dict, ensure_correctness=False, load_kmeans=
     else:
         kmeans = _cluster_mols_experimental(mols=mols, n_iter=100, n_clusters=n_clusters, save_path=config_dict["kmeans_save_path"], objective='mixed', mixed_objective_loss_quantile=0.05)
 
-    mols_smiles = pd.read_pickle(config["path_to_descriptors"])['smiles']
+    mols_smiles = pd.read_pickle(config_dict["path_to_descriptors"])['smiles']
     
     assert len(kmeans.labels_) == len(mols_smiles), "Number of labels differs from number of molecules"
     
@@ -501,6 +501,6 @@ def cluster_and_sample(mols, config_dict, ensure_correctness=False, load_kmeans=
         for mol in mols:
             keyToData.setdefault('smiles', []).append(mol)
             keyToData.setdefault('cluster_id', []).append(cluster)
-    pd.DataFrame(keyToData).to_csv(config["diffdock_save_path"])
+    pd.DataFrame(keyToData).to_csv(config_dict["diffdock_save_path"])
 
     return cluster_to_samples
