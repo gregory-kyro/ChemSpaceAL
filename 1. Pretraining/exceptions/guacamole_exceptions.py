@@ -50,3 +50,5 @@ import yaml
 # dump set into a yaml file
 with open("guacamole_exceptions.yaml", "w") as f:
     yaml.dump(list(exceptions), f)
+
+print(len(ATOMS))
