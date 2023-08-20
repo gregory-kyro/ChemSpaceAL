@@ -49,10 +49,10 @@ class Graph:
         if current_path is None:
             current_path = self.base_path
         for parent_folder in folder_lists[0]:
-            current_path = os.path.join(current_path, parent_folder)
-            if not os.path.exists(current_path):
-                os.mkdir(current_path)
-            create_folders(folder_lists[1:], current_path)
+            new_path = os.path.join(current_path, parent_folder)
+            if not os.path.exists(new_path):
+                os.mkdir(new_path)
+            self.create_folders(folder_lists[1:], new_path)
 
     def update_parameters(self, params):
         for key, val in params.items():
@@ -158,4 +158,7 @@ class Graph:
         if pdf: figure.write_image(f"{path}pdf/{fname}.pdf")
 
 
-# create_folders(BASE_PATH, [["plots"], ["heatmaps", "ligand_distribution", "cluster_distribution"], ["html", "svg", "jpg"]])
+if __name__ == "__main__":
+    gr = Graph("/Users/morgunov/batista/Summer/pipeline/")
+    gr.create_folders([["plots"], ["reducers"], ["html", "svg", "jpg"]])
+    pass
