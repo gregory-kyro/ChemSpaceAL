@@ -1,0 +1,6 @@
+PT: % > threshold = 28.1, Q25 = 05.5, Q50 = 08.0, Mean = 08.5, Q75 = 11.5, max = 31.5
+AL #1: % > threshold = 37.0, Q25 = 06.0, Q50 = 09.0, Mean = 09.8, Q75 = 12.5, max = 39.5
+AL #2: % > threshold = 49.7, Q25 = 07.5, Q50 = 10.5, Mean = 12.2, Q75 = 16.0, max = 51.0
+AL #3: % > threshold = 62.6, Q25 = 08.0, Q50 = 13.5, Mean = 15.1, Q75 = 20.6, max = 54.0
+AL #4: % > threshold = 72.9, Q25 = 10.0, Q50 = 16.5, Mean = 18.2, Q75 = 25.0, max = 55.5
+AL #5: % > threshold = 76.0, Q25 = 11.0, Q50 = 19.0, Mean = 20.1, Q75 = 27.6, max = 59.0
