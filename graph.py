@@ -14,10 +14,12 @@ class Graph:
         self.tick_font_size = 12
         self.annotation_size = 14
         self.text_color = "#333333"
+        self.annotation_color = "#333333"
         self.background = "white"
         self.grid_color = "#e2e2e2"
         self.line_color = "#000000"
         self.font_family = "Helvetica"
+        self.title_font_family = "Helvetica"
         self.showlegend = True
         self.width = 600
         self.height = 400
@@ -42,6 +44,18 @@ class Graph:
         self.ydticks = None
         self.title_ycoord = 0.95
         self.title_xcoord = 0.5
+        self.yaxis_standoff = 0
+        self.b_margin = 50
+        self.t_margin = 50
+        self.l_margin = 50
+        self.r_margin = 50
+        self.x_tickwidth = 2
+        self.y_tickwidth = 2
+        self.x_ticklen = 10
+        self.y_ticklen = 10
+        self.tick_position = "outside"
+        self.x_tickvals = None
+        self.y_tickvals = None
 
     def create_folders(self, folder_lists, current_path=None):
         if not folder_lists:
@@ -61,7 +75,7 @@ class Graph:
     def style_figure(self, figure):
         layout_dict = dict(
             showlegend=self.showlegend,
-            margin=dict(t=50, b=50, l=50, r=50),
+            margin=dict(t=self.t_margin, b=self.b_margin, l=self.l_margin, r=self.r_margin),
             plot_bgcolor=self.background,
             paper_bgcolor=self.background,
             title=dict(
@@ -73,7 +87,7 @@ class Graph:
                 font=dict(
                     size=self.title_size,
                     color=self.text_color,
-                    family=self.font_family,
+                    family=self.title_font_family,
                 ),
             ),
             height=self.height,  # Set fixed size ratio 3:4
@@ -111,11 +125,14 @@ class Graph:
             linewidth=self.xline_width,
             mirror=self.xmirror,
             showticklabels=self.xshowticklabels,
+            ticks=self.tick_position,
+            tickwidth=self.x_tickwidth,
+            ticklen=self.x_ticklen,
         )
 
         yaxis_dict = dict(
             title=self.yaxis_title,
-            title_standoff=0,
+            title_standoff=self.yaxis_standoff,
             title_font=dict(
                 size=self.axis_title_size,
                 color=self.text_color,
@@ -134,6 +151,9 @@ class Graph:
             linewidth=self.yline_width,
             mirror=self.ymirror,
             showticklabels=self.yshowticklabels,
+            ticks=self.tick_position,
+            tickwidth=self.y_tickwidth,
+            ticklen=self.y_ticklen,
         )
         if self.xrange is not None:
             xaxis_dict["range"] = self.xrange
@@ -143,17 +163,26 @@ class Graph:
             xaxis_dict["dtick"] = self.xdticks
         if self.ydticks is not None:
             yaxis_dict["dtick"] = self.ydticks
+        
+        if self.x_tickvals is not None:
+            xaxis_dict["tickvals"] = self.x_tickvals
+        if self.y_tickvals is not None:
+            yaxis_dict["tickvals"] = self.y_tickvals
+
 
         figure.update_layout(layout_dict)
         figure.update_xaxes(xaxis_dict)
         figure.update_yaxes(yaxis_dict)
         for annotation in figure["layout"]["annotations"]:
-            annotation["font"] = dict(size=self.annotation_size)
+            annotation["font"] = dict(size=self.annotation_size, family=self.font_family, color=self.annotation_color)
         return figure
 
-    def save_figure(self, figure, path, fname, jpg=True, svg=True, pdf=False, html=False):
+    def save_figure(self, figure, path, fname, width, height, jpg=True, svg=True, pdf=False, html=False, png=False):
         if html: figure.write_html(f"{path}html/{fname}.html", include_plotlyjs="cdn")
-        if jpg: figure.write_image(f"{path}jpg/{fname}.jpg", scale=4.0,)
+        if jpg: 
+            figure.write_image(f"{path}jpg/{fname}.jpg", width=width, height=height, scale=4.0,)
+        if png: 
+            figure.write_image(f"{path}jpg/{fname}.png", width=width, height=height, scale=4.0,)
         if svg: figure.write_image(f"{path}svg/{fname}.svg")
         if pdf: figure.write_image(f"{path}pdf/{fname}.pdf")
 
