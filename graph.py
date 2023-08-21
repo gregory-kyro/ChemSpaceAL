@@ -189,5 +189,5 @@ class Graph:
 
 if __name__ == "__main__":
     gr = Graph("/Users/morgunov/batista/Summer/pipeline/")
-    gr.create_folders([["plots"], ["reducers"], ["html", "svg", "jpg"]])
+    gr.create_folders([["plots"], ["reducers", "diffusion"], ["html", "svg", "jpg"]])
     pass
