@@ -7,9 +7,9 @@ from openpyxl import load_workbook
 import re
 from torch.nn import functional as F
 
-from Dataset import SMILESDataset
-from Model import GPT, GPTConfig
-from Configuration import *
+from .Dataset import SMILESDataset
+from .Model import GPT, GPTConfig
+from .Configuration import *
 
 @torch.no_grad()
 def sample(model, x, steps, temperature=1.0):
