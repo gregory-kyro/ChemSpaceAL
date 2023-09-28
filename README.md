@@ -7,7 +7,7 @@ The incredible capabilities of generative artificial intelligence models have in
 
 ![toc_figure](https://github.com/gregory-kyro/ChemSpaceAL/assets/98780179/ebdcdec1-67d0-48e5-92f1-330ab921b42b)
 
-## Tutorial Notebook Using HACNet Python Package
+## Tutorial Notebook Using ChemSpaceAL Python Package
 https://colab.research.google.com/github/gregory-kyro/ChemSpaceAL/blob/main/ChemSpaceAL.ipynb
 
 ## Associated Preprint
