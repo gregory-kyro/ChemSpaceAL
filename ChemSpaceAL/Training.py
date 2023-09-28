@@ -8,9 +8,9 @@ from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 import os
 
-from Model import *
-from Dataset import *
-from Configuration import *
+from .Model import *
+from .Dataset import *
+from .Configuration import *
 
 # Setting seeds for reproducibility
 np.random.seed(42)
