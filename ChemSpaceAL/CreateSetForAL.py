@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 import plotly.graph_objects as go
 
-from Configuration import *
+from .Configuration import *
 
 
 def compute_cluster_scores(config: dict) -> dict:
