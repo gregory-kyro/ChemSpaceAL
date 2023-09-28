@@ -7,7 +7,7 @@ import numpy as np
 from scipy.stats import gaussian_kde
 import pandas as pd
 
-from Configuration import *
+from .Configuration import *
 
 # Dictionary containing scores for different protein-ligand interactions
 interaction_scores = {
