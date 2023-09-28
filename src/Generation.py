@@ -236,19 +236,6 @@ def export_metrics_to_workbook(metrics, config, fname):
         '% fraction of scored from round 6 in generated': 'AN',
         '% fraction of scored from round 7 in generated': 'AO'}
 
-    wb = load_workbook(filename=f"{config['base_path']}Logbook.xlsx")
-    for i, sheet in enumerate(('generated_logbook_abs', 'generated_logbook_rel')):
-        ws = wb[sheet]
-        row = 3
-        while ws[f'A{row}'].value is not None:
-            row += 1
-        ws[f'A{row}'] = fname
-        for metric, value in metrics.items():
-            if isinstance(value, str) and '=' in value:
-                value = value.split(' = ')[1-i].split(' * ')[1-i]
-            ws[f'{metric_to_col[metric]}{row}'] = value
-    wb.save(filename=f"{config['base_path']}Logbook.xlsx")
-
 
 def characterize_generated_molecules(config_dict, molecules_list=None):
     """Characterize generated molecules based on certain metrics.
