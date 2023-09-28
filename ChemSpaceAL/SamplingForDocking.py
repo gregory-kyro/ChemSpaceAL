@@ -6,7 +6,7 @@ import pickle
 from sklearn.cluster import KMeans
 import numpy as np
 
-from Configuration import *
+from .Configuration import *
 
 def get_descriptors(config):
     """Extract descriptors for molecules from SMILES data.
