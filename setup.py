@@ -8,7 +8,7 @@ setup(
     author = 'Gregory W. Kyro, Anton Morgunov & Rafael I. Brent',
     author_email = 'gregory.kyro@yale.edu',
     url = 'https://github.com/gregory-kyro/ChemSpaceAL/tree/main',
-    #CHANGE download_url = 'https://github.com/gregory-kyro/HAC-Net/archive/refs/tags/v1.4.3.tar.gz',
+    download_url = 'https://github.com/gregory-kyro/ChemSpaceAL/archive/refs/tags/v1.0.0.tar.gz',
     keywords = ['active learning', 'artificial intelligence', 'deep learning', 'machine learning', 'molecular generation', 'drug discovery'],
     classifiers = []
 )
