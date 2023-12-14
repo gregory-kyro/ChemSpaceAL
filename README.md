@@ -4,6 +4,8 @@
 
 # ChemSpaceAL: An Efficient Active Learning Methodology Applied to Protein-Specific Molecular Generation
 
+## Please find our up-to-date source code here: https://github.com/batistagroup/ChemSpaceAL
+
 [![image](https://img.shields.io/pypi/v/ChemSpaceAL.svg)](https://pypi.org/project/ChemSpaceAL/)
 
 <a target="_blank" href="https://colab.research.google.com/github/gregory-kyro/ChemSpaceAL/blob/main/ChemSpaceAL.ipynb">
